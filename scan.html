@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Borhane Scan</title>
+    <style>
+        body {
+            background-color: #1e1e1e;
+            color: #ffffff;
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        header {
+            background-color: #1e1e1e;
+            padding: 20px;
+            text-align: center;
+            color: #ffffff;
+        }
+
+        #search-container {
+            background-color: #1e1e1e;
+            border-radius: 10px;
+            padding: 20px;
+            box-sizing: border-box;
+            width: 80%;
+            max-width: 400px;
+            text-align: center;
+            margin-bottom: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        #search-box {
+            width: 70%;
+            padding: 10px;
+            box-sizing: border-box;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            background-color: #555;
+            color: #ffffff;
+            transition: box-shadow 0.3s ease;
+            box-shadow: 0 0 5px rgba(255, 255, 255, 0.2);
+        }
+
+        #search-box:focus {
+            outline: none;
+            box-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+        }
+
+        #search-button {
+            background-color: #007bff;
+            color: #ffffff;
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+            transition: background-color 0.3s ease;
+        }
+
+        #search-button:hover {
+            background-color: #0056b3;
+        }
+
+        #result-container {
+            text-align: left;
+            max-height: 400px;
+            overflow-y: auto;
+            width: 80%;
+            max-width: 600px;
+        }
+
+        .result-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding: 20px;
+            border: 1px solid #555;
+            border-radius: 5px;
+            box-sizing: border-box;
+            position: relative;
+            background-color: #1e1e1e;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .result-item img {
+            max-width: 66px;
+            max-height: 66px;
+            border-radius: 5px;
+            margin-right: 20px;
+            transition: transform 0.3s ease-in-out;
+        }
+
+        h2 {
+            color: #ffffff;
+            margin-bottom: 20px;
+        }
+
+        p {
+            margin: 0;
+            margin-top: 10px;
+            color: #cccccc;
+        }
+
+        .result-item-details {
+            flex-grow: 1;
+            text-align: left;
+        }
+
+        .admin-text,
+        .moderator-text {
+            font-weight: bold;
+            margin-right: 90px;
+            color: #f1c40f;
+        }
+
+        .admin-frame,
+        .moderator-frame {
+            border-radius: 15px;
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .admin-status {
+            color: #ff0000;
+        }
+
+        .moderator-status {
+            color: #ff8c00;
+        }
+
+        .status-separator {
+            margin-top: 10px;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.1);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        @keyframes sparkle {
+            0% {
+                text-shadow: 0 0 10px #00ff00;
+            }
+
+            100% {
+                text-shadow: 0 0 20px #00ff00;
+            }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        #loading-indicator {
+            display: none;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .loader {
+            border: 8px solid #f3f3f3;
+            border-top: 8px solid #007bff;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 10px;
+        }
+
+        /* Styles for the audio element */
+        #background-music {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>Borhane Scan</h1>
+    </header>
+
+    <div id="search-container">
+        <input type="text" id="search-box" placeholder="Scan tournwa...">
+        <button id="search-button" onclick="search()">Scan</button>
+    </div>
+
+    <div id="result-container">
+        <!-- هنا سيتم عرض نتائج البحث -->
+    </div>
+
+    <div id="loading-indicator">
+        <div class="loader"></div>
+        <p>لابالـين يقوم بلاتصال بالخادم...</p>
+    </div>
+
+    <!-- Audio element -->
+    <audio id="background-music" loop>
+        <source src="https://k.top4top.io/m_2940tnyii0.mp3" type="audio/mp3">
+        Your browser does not support the audio tag.
+    </audio>
+
+    <script>
+        var defaultImageUrl = "https://boubou-tr.000webhostapp.com/MikeyGold.jpg";
+
+        function search() {
+            var searchTerm = document.getElementById("search-box").value;
+            if (searchTerm) {
+                showLoadingIndicator();
+
+                // Play the background music
+                var audio = document.getElementById("background-music");
+                audio.play();
+
+                setTimeout(function () {
+                    var apiUrl = "https://prod-tournament.playdapp.com/api/v1/tournament/rank?tid=" + searchTerm + "&idx=0&count=100";
+                    fetch(apiUrl)
+                        .then(response => response.json())
+                        .then(data => {
+                            displayResults(data);
+                            hideLoadingIndicator();
+                            // Pause the music after displaying results
+                            audio.pause();
+                        })
+                        .catch(error => {
+                            console.error('حدث خطأ: ', error);
+                            hideLoadingIndicator();
+                            // Pause the music in case of an error
+                            audio.pause();
+                        });
+                }, 1000);
+            }
+        }
+
+        function displayResults(data) {
+            var resultContainer = document.getElementById("result-container");
+            resultContainer.innerHTML = "<h2>BORHANE-PANEL</h2>";
+
+            data.data.reverse();
+
+            data.data.forEach(player => {
+                var resultItem = document.createElement("div");
+                resultItem.className = "result-item";
+
+                var imageElement = document.createElement("img");
+                imageElement.src = player.imageUrl || defaultImageUrl;
+                imageElement.alt = " مشراش ڨط";
+                imageElement.className = "default-image";
+
+                var detailsContainer = document.createElement("div");
+                detailsContainer.className = "result-item-details";
+
+                var rankParagraph = document.createElement("p");
+                rankParagraph.innerHTML = "<strong>Rank: </strong>" + player.rank;
+
+                var uidParagraph = document.createElement("p");
+                uidParagraph.innerHTML = "<strong>UID: </strong>" + player.uid;
+                detailsContainer.appendChild(uidParagraph);
+
+                var nicknameParagraph = document.createElement("p");
+                var isModerator = player.uid === 11929 || player.uid === 9999999999;
+                var isAdmin = player.uid === 12143 || player.uid === 12965 || player.uid === 11962;
+
+                if (isModerator) {
+                    var isSuperModerator = true;
+                    nicknameParagraph.innerHTML = "<strong>User: </strong><span class='moderator-text'>" + player.nickName + "</span><br class='status-separator'><strong>Status: </strong><span class='moderator-status'>" + (isSuperModerator ? "Moderator" : "Super Moderator") + "</span>";
+                    if (!isSuperModerator) {
+                        imageElement.classList.add("moderator-frame");
+                    }
+                } else if (isAdmin) {
+                    nicknameParagraph.innerHTML = "<strong>User: </strong><span class='admin-text'>" + player.nickName + "</span><br class='status-separator'><strong>Status: </strong><span class='admin-status'>Admin</span>";
+                    imageElement.classList.add("admin-frame");
+                } else {
+                    nicknameParagraph.innerHTML = "<strong>User: </strong>" + player.nickName;
+                }
+
+                var scoreParagraph = document.createElement("p");
+                scoreParagraph.innerHTML = "<strong>Score: </strong>" + player.score;
+
+                detailsContainer.appendChild(rankParagraph);
+                detailsContainer.appendChild(uidParagraph);
+                detailsContainer.appendChild(nicknameParagraph);
+                detailsContainer.appendChild(scoreParagraph);
+
+                resultItem.appendChild(imageElement);
+                resultItem.appendChild(detailsContainer);
+
+                resultContainer.insertBefore(resultItem, resultContainer.firstChild);
+            });
+        }
+
+        function showLoadingIndicator() {
+            document.getElementById("loading-indicator").style.display = "block";
+        }
+
+        function hideLoadingIndicator() {
+            document.getElementById("loading-indicator").style.display = "none";
+        }
+    </script>
+</body>
+
+</html>
